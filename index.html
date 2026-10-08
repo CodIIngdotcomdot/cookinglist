@@ -1,0 +1,617 @@
+```html
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recept hozzávalólista</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f7f2;
+            color: #263126;
+        }
+
+        header {
+            background: linear-gradient(135deg, #3f6212, #65a30d);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        header h1 {
+            margin: 0 0 10px;
+            font-size: 40px;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 30px 20px;
+        }
+
+        /* Receptválasztó */
+
+        .recipe-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .recipe-selector label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #recipeSelect {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d5ddcf;
+            border-radius: 10px;
+            font-size: 17px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Recept */
+
+        .recipe {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 7px 25px rgba(0,0,0,0.09);
+        }
+
+        .recipe-header {
+            padding: 30px;
+            background: #ecfccb;
+        }
+
+        .recipe-header h2 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .recipe-header p {
+            margin: 0;
+            color: #526052;
+        }
+
+        .ingredients {
+            padding: 25px;
+        }
+
+        .ingredients h3 {
+            margin-top: 0;
+            font-size: 23px;
+        }
+
+        /* Hozzávaló */
+
+        .ingredient {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8faf7;
+            border: 1px solid #e2e8df;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .ingredient:hover {
+            background: #f0fdf4;
+            transform: translateX(3px);
+        }
+
+        .ingredient input {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #65a30d;
+            flex-shrink: 0;
+        }
+
+        .ingredient-info {
+            flex: 1;
+        }
+
+        .ingredient-name {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .ingredient-amount {
+            color: #6b7568;
+            margin-left: 5px;
+        }
+
+        /* Kipipált hozzávaló */
+
+        .ingredient.checked {
+            background: #f0fdf4;
+            opacity: 0.65;
+        }
+
+        .ingredient.checked .ingredient-name,
+        .ingredient.checked .ingredient-amount {
+            text-decoration: line-through;
+        }
+
+        /* Gombok */
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 0 25px 25px;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .check-all {
+            background: #65a30d;
+            color: white;
+        }
+
+        .uncheck-all {
+            background: #e5e7eb;
+            color: #263126;
+        }
+
+        .counter {
+            margin-left: auto;
+            color: #647060;
+            display: flex;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+
+            header h1 {
+                font-size: 31px;
+            }
+
+            .ingredient {
+                padding: 13px;
+            }
+
+            .counter {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🍳 Recept hozzávalók</h1>
+    <p>Pipáld ki, amit már beszereztél vagy felhasználtál!</p>
+</header>
+
+
+<main class="container">
+
+    <!-- Recept kiválasztása -->
+
+    <div class="recipe-selector">
+
+        <label for="recipeSelect">
+            Válassz egy receptet:
+        </label>
+
+        <select id="recipeSelect">
+            <option value="palacsinta">🥞 Palacsinta</option>
+            <option value="bolognai">🍝 Bolognai spagetti</option>
+            <option value="pizza">🍕 Házi pizza</option>
+            <option value="gulyas">🍲 Gulyásleves</option>
+        </select>
+
+    </div>
+
+
+    <!-- Recept -->
+
+    <section class="recipe">
+
+        <div class="recipe-header">
+
+            <h2 id="recipeTitle">
+                🥞 Palacsinta
+            </h2>
+
+            <p id="recipeDescription">
+                Egyszerű és finom házi palacsinta.
+            </p>
+
+        </div>
+
+
+        <div class="ingredients">
+
+            <h3>🛒 Hozzávalók</h3>
+
+            <div id="ingredientList"></div>
+
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                class="check-all"
+                onclick="checkAll()">
+                ✓ Összes kipipálása
+            </button>
+
+            <button
+                class="uncheck-all"
+                onclick="uncheckAll()">
+                ↺ Pipák törlése
+            </button>
+
+            <div class="counter" id="counter">
+                0 / 0 kész
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+    /*
+        RECEPT ADATOK
+    */
+
+    const recipes = {
+
+        palacsinta: {
+
+            title: "🥞 Palacsinta",
+
+            description:
+                "Egyszerű és finom házi palacsinta.",
+
+            ingredients: [
+
+                ["Liszt", "250 g"],
+                ["Tojás", "2 db"],
+                ["Tej", "500 ml"],
+                ["Szénsavas víz", "200 ml"],
+                ["Cukor", "1 evőkanál"],
+                ["Só", "1 csipet"],
+                ["Olaj", "2 evőkanál"]
+
+            ]
+
+        },
+
+
+        bolognai: {
+
+            title: "🍝 Bolognai spagetti",
+
+            description:
+                "Klasszikus paradicsomos-húsos spagetti.",
+
+            ingredients: [
+
+                ["Spagetti", "400 g"],
+                ["Darált marhahús", "500 g"],
+                ["Paradicsomszósz", "500 ml"],
+                ["Vöröshagyma", "1 db"],
+                ["Fokhagyma", "2 gerezd"],
+                ["Olívaolaj", "2 evőkanál"],
+                ["Só", "ízlés szerint"],
+                ["Bors", "ízlés szerint"],
+                ["Oregánó", "1 teáskanál"],
+                ["Parmezán", "50 g"]
+
+            ]
+
+        },
+
+
+        pizza: {
+
+            title: "🍕 Házi pizza",
+
+            description:
+                "Ropogós szélű, egyszerű házi pizza.",
+
+            ingredients: [
+
+                ["Liszt", "500 g"],
+                ["Langyos víz", "300 ml"],
+                ["Élesztő", "7 g"],
+                ["Olívaolaj", "2 evőkanál"],
+                ["Só", "1 teáskanál"],
+                ["Paradicsomszósz", "200 ml"],
+                ["Mozzarella", "250 g"],
+                ["Sonka", "150 g"],
+                ["Oregánó", "1 teáskanál"]
+
+            ]
+
+        },
+
+
+        gulyas: {
+
+            title: "🍲 Gulyásleves",
+
+            description:
+                "Tartalmas magyaros gulyásleves.",
+
+            ingredients: [
+
+                ["Marhahús", "600 g"],
+                ["Burgonya", "500 g"],
+                ["Vöröshagyma", "2 db"],
+                ["Sárgarépa", "2 db"],
+                ["Fehérrépa", "1 db"],
+                ["Paprika", "2 db"],
+                ["Paradicsom", "2 db"],
+                ["Fokhagyma", "3 gerezd"],
+                ["Őrölt pirospaprika", "2 evőkanál"],
+                ["Kömény", "1 teáskanál"],
+                ["Só", "ízlés szerint"]
+
+            ]
+
+        }
+
+    };
+
+
+    /*
+        KIPIPÁLT ELEMEK TÁROLÁSA
+    */
+
+    let checkedIngredients = {};
+
+
+    /*
+        RECEPT BETÖLTÉSE
+    */
+
+    function loadRecipe(recipeName) {
+
+        const recipe = recipes[recipeName];
+
+        document.getElementById("recipeTitle").textContent =
+            recipe.title;
+
+        document.getElementById("recipeDescription").textContent =
+            recipe.description;
+
+
+        const list =
+            document.getElementById("ingredientList");
+
+        list.innerHTML = "";
+
+
+        if (!checkedIngredients[recipeName]) {
+
+            checkedIngredients[recipeName] = [];
+
+        }
+
+
+        recipe.ingredients.forEach(
+            (ingredient, index) => {
+
+                const [name, amount] = ingredient;
+
+                const row =
+                    document.createElement("label");
+
+                row.className = "ingredient";
+
+
+                const checkbox =
+                    document.createElement("input");
+
+                checkbox.type = "checkbox";
+
+                checkbox.checked =
+                    checkedIngredients[recipeName].includes(index);
+
+
+                const info =
+                    document.createElement("div");
+
+                info.className = "ingredient-info";
+
+
+                info.innerHTML = `
+                    <span class="ingredient-name">
+                        ${name}
+                    </span>
+
+                    <span class="ingredient-amount">
+                        – ${amount}
+                    </span>
+                `;
+
+
+                row.appendChild(checkbox);
+
+                row.appendChild(info);
+
+
+                /*
+                    Ha már ki volt pipálva
+                */
+
+                if (checkbox.checked) {
+
+                    row.classList.add("checked");
+
+                }
+
+
+                /*
+                    Kattintás
+                */
+
+                checkbox.addEventListener(
+                    "change",
+                    () => {
+
+                        if (checkbox.checked) {
+
+                            row.classList.add("checked");
+
+                            if (
+                                !checkedIngredients[recipeName]
+                                    .includes(index)
+                            ) {
+
+                                checkedIngredients[recipeName]
+                                    .push(index);
+
+                            }
+
+                        } else {
+
+                            row.classList.remove("checked");
+
+                            checkedIngredients[recipeName] =
+                                checkedIngredients[recipeName]
+                                    .filter(i => i !== index);
+
+                        }
+
+
+                        updateCounter(recipeName);
+
+                    }
+                );
+
+
+                list.appendChild(row);
+
+            }
+        );
+
+
+        updateCounter(recipeName);
+
+    }
+
+
+    /*
+        SZÁMLÁLÓ
+    */
+
+    function updateCounter(recipeName) {
+
+        const total =
+            recipes[recipeName].ingredients.length;
+
+        const checked =
+            checkedIngredients[recipeName]?.length || 0;
+
+        document.getElementById("counter").textContent =
+            `${checked} / ${total} kész`;
+
+    }
+
+
+    /*
+        ÖSSZES KIPIPÁLÁSA
+    */
+
+    function checkAll() {
+
+        const recipeName =
+            document.getElementById("recipeSelect").value;
+
+        const total =
+            recipes[recipeName].ingredients.length;
+
+        checkedIngredients[recipeName] =
+            Array.from(
+                { length: total },
+                (_, index) => index
+            );
+
+        loadRecipe(recipeName);
+
+    }
+
+
+    /*
+        ÖSSZES PIPA TÖRLÉSE
+    */
+
+    function uncheckAll() {
+
+        const recipeName =
+            document.getElementById("recipeSelect").value;
+
+        checkedIngredients[recipeName] = [];
+
+        loadRecipe(recipeName);
+
+    }
+
+
+    /*
+        RECEPTVÁLTÁS
+    */
+
+    document
+        .getElementById("recipeSelect")
+        .addEventListener(
+            "change",
+            function() {
+
+                loadRecipe(this.value);
+
+            }
+        );
+
+
+    /*
+        ELSŐ RECEPT BETÖLTÉSE
+    */
+
+    loadRecipe("palacsinta");
+
+</script>
+
+</body>
+</html>
+```
